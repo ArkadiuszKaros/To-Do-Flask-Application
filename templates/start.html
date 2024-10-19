@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager</title>
+    <style>
+        body {
+            background: radial-gradient(circle, #58a5d1, #e973e3, #6402c0);
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            margin-top: 20px;
+            text-align: center;
+            color: white;
+            font-size: 36px;
+            z-index: 2;
+        }
+
+        form {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            z-index: 2;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            border-radius: 20px;
+            border: 1px solid #ccc;
+            width: 250px;
+            font-size: 16px;
+            outline: none;
+            z-index: 2;
+        }
+
+        button {
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: none;
+            background-color: #004e92;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            margin-left: 10px;
+            z-index: 2;
+        }
+
+        button:hover {
+            background-color: #003366;
+            z-index: 2;
+        }
+
+        .task-list {
+            width: 100%;
+            max-width: 750px;
+            z-index: 2;
+        }
+
+        .task-item {
+            background-color: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            flex-wrap: wrap; 
+            word-wrap: break-word; 
+            z-index: 2;
+        }
+
+        .task-item form {
+            margin: 0;
+            z-index: 2;
+        }
+
+        input[type="checkbox"] {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #004e92;
+            border-radius: 5px;
+            background-color: white;
+            cursor: pointer;
+            position: relative;
+            z-index: 2;
+        }
+
+        input[type="checkbox"]:checked {
+            background-color: #03e44e;
+            border: 2px solid #003366;
+        }
+
+        input[type="checkbox"]:checked::after {
+            content: '';
+            position: absolute;
+            width: 6px;
+            height: 12px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+            left: 4px;
+        }
+
+        .circle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            opacity: 0.6;
+            pointer-events: none; 
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>    
+
+    <h1>Welcome in your own To-Do App!</h1>
+
+    <form action="{{ url_for('add_task') }}" method="POST">
+        <input type="text" name="newTask" placeholder="New task" maxlength="45" required>
+        <button type="submit">Add</button>
+    </form>
+
+    <div class="task-list">
+        {% for task in tasks %}
+        <div class="task-item">
+            {{ task.text }}
+            <form action="{{ url_for('remove_task', task_id=task.task_id) }}" method="POST">
+                <input type="checkbox" name="taskCheckbox" onclick="this.form.submit()">
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <script>
+        function createCircles(circles) {
+            const body = document.body;
+            const maxVH = 90; 
+            const maxVW = 90; 
+
+            circles.forEach(circle => {
+                const circleDiv = document.createElement("div");
+                circleDiv.className = "circle";
+                circleDiv.style.width = `${circle.size}px`;
+                circleDiv.style.height = `${circle.size}px`;
+
+                const posY = Math.min(circle.position_y, maxVH); 
+                const posX = Math.min(circle.position_x, maxVW); 
+
+                circleDiv.style.top = `${posY}vh`;
+                circleDiv.style.left = `${posX}vw`;
+                body.appendChild(circleDiv);
+            });
+        }
+        window.onload = function() {
+            const circles = {{ circles | tojson }}; 
+            createCircles(circles); 
+        };
+    </script>
+</body>
+</html>
